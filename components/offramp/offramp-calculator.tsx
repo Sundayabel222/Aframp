@@ -127,7 +127,10 @@ export function OfframpCalculator({
             value={fiatCurrency}
             onChange={(value) => {
               // Ensure value is a fiat currency before calling onFiatChange
-              if (typeof value === 'string' || (value && typeof value === 'object' && 'symbol' in value)) {
+              if (
+                typeof value === 'string' ||
+                (value && typeof value === 'object' && 'symbol' in value)
+              ) {
                 onFiatChange(value as FiatCurrency)
               }
             }}

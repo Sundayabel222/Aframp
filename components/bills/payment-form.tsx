@@ -34,30 +34,16 @@ export function PaymentForm({ schema }: PaymentFormProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [showSchedule, setShowSchedule] = useState(false)
 
-  // Generate dynamic Zod schema
+  // 1. Generate dynamic Zod schema
   const formSchemaObject: any = {}
   schema.fields.forEach((field) => {
     let validator: any = z.string()
-
     if (field.validation.required) {
       validator = validator.min(1, field.validation.message || `${field.label} is required`)
     }
-
     if (field.validation.pattern) {
       validator = validator.regex(new RegExp(field.validation.pattern), field.validation.message)
     }
-
-    if (field.validation.minLength && field.type === 'number') {
-      const minVal = field.validation.minLength
-      validator = validator.refine(
-        (val: string) => {
-          const num = parseFloat(val)
-          return !isNaN(num) && num >= minVal
-        },
-        field.validation.message || `Minimum value is ${minVal}`
-      )
-    }
-
     formSchemaObject[field.name] = validator
   })
 
@@ -75,27 +61,22 @@ export function PaymentForm({ schema }: PaymentFormProps) {
     mode: 'onChange',
   })
 
-    // Mock real-time account validation
-    const accountValue = watch(schema.fields[0].name as any)
-    useEffect(() => {
-        if (accountValue && accountValue.length >= 10 && !errors[schema.fields[0].name]) {
-            const delayDebounceFn = setTimeout(() => {
-                validateAccount()
-            }, 1000)
-            return () => clearTimeout(delayDebounceFn)
-        } else {
-            setValidatedAccount(null)
-        }
-    }, [accountValue, errors[schema.fields[0].name]])
+  // 2. Define parsedAmount (was missing)
+  const amountField = schema.fields.find((f) => f.name === 'amount' || f.type === 'number')
+  const amountValue = watch(amountField?.name as any)
+  const parsedAmount = parseFloat(amountValue || '0')
 
-    const validateAccount = async () => {
-        setIsValidating(true)
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-        setIsValidating(false)
-
-  // Mock real-time account validation
+  // 3. Logic: Account Validation
   const accountValue = watch(schema.fields[0].name as any)
+
+  const validateAccount = async (value: string) => {
+    setIsValidating(true)
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    setIsValidating(false)
+    const mockNames = ['John Doe', 'Sarah Williams', 'Emeka Azikiwe', 'Kofi Mensah']
+    setValidatedAccount(mockNames[Math.floor(Math.random() * mockNames.length)])
+  }
+
   useEffect(() => {
     if (accountValue && accountValue.length >= 10 && !errors[schema.fields[0].name]) {
       const delayDebounceFn = setTimeout(() => {
@@ -107,26 +88,10 @@ export function PaymentForm({ schema }: PaymentFormProps) {
     }
   }, [accountValue, errors[schema.fields[0].name]])
 
-  const validateAccount = async (_value: string) => {
-    setIsValidating(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsValidating(false)
-    const onSubmit = async (_data: FormValues) => {
-        setIsProcessing(true)
-        // Simulate payment processing
-        await new Promise((resolve) => setTimeout(resolve, 3000))
-
-    // Random mock name
-    const mockNames = ['John Doe', 'Sarah Williams', 'Emeka Azikiwe', 'Kofi Mensah', 'Jane Smith']
-    setValidatedAccount(mockNames[Math.floor(Math.random() * mockNames.length)])
-  }
-
-  const onSubmit = async (_data: FormValues) => {
+  // 4. Logic: Form Submission
+  const onSubmit = async (data: FormValues) => {
     setIsProcessing(true)
-    // Simulate payment processing
     await new Promise((resolve) => setTimeout(resolve, 3000))
-
     setIsProcessing(false)
     toast.success('Payment Successful!', {
       description: `Your payment to ${schema.name} has been processed.`,
@@ -143,7 +108,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
             </Label>
 
             {field.type === 'select' ? (
-              <Select onValueChange={(val) => setValue(field.name as any, val)}>
+              <Select onValueChange={(val: any) => setValue(field.name as any, val)}>
                 <SelectTrigger className="h-12 rounded-2xl bg-muted/30 focus:ring-primary">
                   <SelectValue placeholder={field.placeholder || `Select ${field.label}`} />
                 </SelectTrigger>
@@ -176,7 +141,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-2 text-xs flex items-center gap-1.5 text-success font-medium bg-success/10 p-2 rounded-xl"
+                    className="mt-2 text-xs flex items-center gap-1.5 text-green-600 font-medium bg-green-50 p-2 rounded-xl"
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     Account Verified: {validatedAccount}
@@ -199,13 +164,10 @@ export function PaymentForm({ schema }: PaymentFormProps) {
 
         <div className="space-y-4">
           <div className="flex items-center space-x-2 bg-muted/20 p-4 rounded-2xl border border-border/50">
-            <Checkbox
-              id="saveDetails"
-              className="rounded-lg border-primary data-[state=checked]:bg-primary"
-            />
+            <Checkbox id="saveDetails" className="rounded-lg" />
             <label
               htmlFor="saveDetails"
-              className="text-sm font-medium leading-none cursor-pointer text-muted-foreground"
+              className="text-sm font-medium cursor-pointer text-muted-foreground"
             >
               Save details for future payments
             </label>
@@ -220,8 +182,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
               <Checkbox
                 id="schedule"
                 checked={showSchedule}
-                onCheckedChange={(checked) => setShowSchedule(!!checked)}
-                className="rounded-lg border-primary data-[state=checked]:bg-primary"
+                onCheckedChange={(checked: any) => setShowSchedule(!!checked)}
               />
             </div>
 
@@ -234,9 +195,6 @@ export function PaymentForm({ schema }: PaymentFormProps) {
                   className="overflow-hidden pt-2"
                 >
                   <Input type="date" className="h-11 rounded-xl bg-card border-border" />
-                  <p className="text-[10px] text-muted-foreground mt-2">
-                    Payment will be automatically processed on the selected date.
-                  </p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -259,24 +217,20 @@ export function PaymentForm({ schema }: PaymentFormProps) {
         disabled={
           !isValid || isProcessing || (schema.fields[0].validation.required && !validatedAccount)
         }
-        className="w-full h-14 rounded-2xl text-lg font-semibold shimmer-btn shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+        className="w-full h-14 rounded-2xl text-lg font-semibold"
       >
         {isProcessing ? (
-          <div className="flex items-center gap-2 text-primary-foreground">
+          <div className="flex items-center gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
             <span>Processing...</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-primary-foreground">
+          <div className="flex items-center gap-2">
             <span>Pay Now</span>
             <ChevronRight className="w-5 h-5" />
           </div>
         )}
       </Button>
-
-            <p className="text-[10px] text-center text-muted-foreground px-6">
-                By clicking &quot;Pay Now&quot;, you agree to our Terms of Service and acknowledge that this transaction is final.
-            </p>
-        </form>
-    )
+    </form>
+  )
 }

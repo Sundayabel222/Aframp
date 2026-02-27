@@ -18,8 +18,11 @@ export function DashboardPageClient({ initialWallet, initialAddress }: Dashboard
 
   useEffect(() => {
     // Prefer URL params passed from the server, then fall back to localStorage
-    const wallet = initialWallet || (typeof window !== 'undefined' ? localStorage.getItem('walletName') : null)
-    const address = initialAddress || (typeof window !== 'undefined' ? localStorage.getItem('walletAddress') : null)
+    const wallet =
+      initialWallet || (typeof window !== 'undefined' ? localStorage.getItem('walletName') : null)
+    const address =
+      initialAddress ||
+      (typeof window !== 'undefined' ? localStorage.getItem('walletAddress') : null)
 
     if (wallet && address) {
       // Batch state updates

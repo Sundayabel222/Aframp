@@ -71,7 +71,10 @@ export function useExchangeRate(fiat: FiatCurrency, asset: CryptoAsset) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const updateFromCache = useCallback(
-    (cached: { timestamp: number; data: Record<string, Record<string, number>> }, reason: string) => {
+    (
+      cached: { timestamp: number; data: Record<string, Record<string, number>> },
+      reason: string
+    ) => {
       if (!cached?.data) return
       const lower = fiat.toLowerCase()
       const usdcPrice = cached.data['usd-coin']?.[lower]
