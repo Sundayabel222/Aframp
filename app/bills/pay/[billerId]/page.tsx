@@ -13,22 +13,24 @@ interface PageProps {
 }
 
 export default function BillerPaymentPage({ params }: PageProps) {
-    const { billerId } = use(params)
-    const schema = BILLER_SCHEMAS[billerId]
+  const { billerId } = use(params)
+  const schema = BILLER_SCHEMAS[billerId]
 
-    if (!schema) {
-        return (
-            <div className="min-h-screen bg-background flex items-center justify-center p-4">
-                <div className="text-center space-y-4">
-                    <h1 className="text-2xl font-bold">Biller Not Found</h1>
-                    <p className="text-muted-foreground">The biller you are looking for does not exist or is not supported yet.</p>
-                    <Button asChild>
-                        <Link href="/bills">Back to Bills</Link>
-                    </Button>
-                </div>
-            </div>
-        )
-    }
+  if (!schema) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold">Biller Not Found</h1>
+          <p className="text-muted-foreground">
+            The biller you are looking for does not exist or is not supported yet.
+          </p>
+          <Button asChild>
+            <Link href="/bills">Back to Bills</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   if (!schema) {
     return (

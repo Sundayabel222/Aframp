@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'
 
 interface ErrorStateProps {
-  message?: string;
-  onRetry?: () => void;
+  message?: string
+  onRetry?: () => void
 }
 
 export function ErrorState({ message = 'Failed to load data.', onRetry }: ErrorStateProps) {
@@ -19,5 +19,5 @@ export function ErrorState({ message = 'Failed to load data.', onRetry }: ErrorS
         </button>
       )}
     </div>
-  );
+  )
 }
