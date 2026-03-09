@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { CategoryIcon } from '@/components/bills/biller-icons'
 
 interface BillCategory {
   id: string
@@ -72,11 +73,11 @@ export function CategoryGrid({ categories, searchQuery, selectedCountry }: Categ
                     <div className="flex items-center gap-3 mb-3">
                       <div
                         className={cn(
-                          'w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all group-hover:scale-110',
+                          'w-12 h-12 rounded-xl flex items-center justify-center transition-all group-hover:scale-110',
                           colorClasses[category.color]
                         )}
                       >
-                        {category.icon}
+                        <CategoryIcon categoryId={category.id} className="h-6 w-6" />
                       </div>
                       {category.popular && (
                         <Badge variant="secondary" className="text-xs h-5">

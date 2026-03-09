@@ -16,7 +16,7 @@
   --secondary: oklch(0.95 0.01 90);
   --secondary-foreground: oklch(0.15 0.01 60);
   --muted: oklch(0.94 0.01 90);
-  --muted-foreground: oklch(0.45 0.01 60);
+  --muted-foreground: oklch(0.38 0.01 60);
   --accent: oklch(0.75 0.15 85);
   --accent-foreground: oklch(0.15 0.01 60);
   --destructive: oklch(0.577 0.245 27.325);
@@ -41,7 +41,7 @@
   --secondary: oklch(0.18 0.01 60);
   --secondary-foreground: oklch(0.98 0.005 90);
   --muted: oklch(0.18 0.01 60);
-  --muted-foreground: oklch(0.65 0.01 90);
+  --muted-foreground: oklch(0.78 0.01 90);
   --accent: oklch(0.75 0.15 85);
   --accent-foreground: oklch(0.1 0.01 60);
   --destructive: oklch(0.577 0.245 27.325);
@@ -54,9 +54,9 @@
 }
 
 @theme inline {
-  --font-sans: 'Manrope', 'Manrope Fallback', sans-serif;
-  --font-display: 'Cal Sans', 'Cal Sans Fallback', sans-serif;
-  --font-heading: 'Instrument Sans', 'Instrument Sans Fallback', sans-serif;
+  --font-sans: var(--font-manrope), 'Manrope Fallback', sans-serif;
+  --font-display: var(--font-cal-sans), 'Outfit Fallback', sans-serif;
+  --font-heading: var(--font-instrument-sans), 'Space Mono Fallback', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -103,7 +103,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }
 

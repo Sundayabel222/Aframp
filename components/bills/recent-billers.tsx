@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Clock, Star } from 'lucide-react'
+import { BillerIcon } from '@/components/bills/biller-icons'
 
 interface Biller {
   id: string
@@ -100,8 +101,8 @@ export function RecentBillers({ billers, searchQuery, loading }: RecentBillersPr
               <Card className="h-full border-border bg-card hover:border-primary/50 transition-all duration-300">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-2xl group-hover:scale-105 transition-transform">
-                      {biller.logo}
+                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <BillerIcon billerId={biller.id} className="h-6 w-6 text-primary" />
                     </div>
 
                     <div className="flex-1 min-w-0">

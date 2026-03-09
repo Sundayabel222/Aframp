@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { PaymentForm } from '@/components/bills/payment-form'
 import { BILLER_SCHEMAS } from '@/lib/biller-schemas'
 import Link from 'next/link'
+import { BillerIcon } from '@/components/bills/biller-icons'
 
 interface PageProps {
   params: Promise<{ billerId: string }>
@@ -15,22 +16,6 @@ interface PageProps {
 export default function BillerPaymentPage({ params }: PageProps) {
   const { billerId } = use(params)
   const schema = BILLER_SCHEMAS[billerId]
-
-  if (!schema) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">Biller Not Found</h1>
-          <p className="text-muted-foreground">
-            The biller you are looking for does not exist or is not supported yet.
-          </p>
-          <Button asChild>
-            <Link href="/bills">Back to Bills</Link>
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
   if (!schema) {
     return (
@@ -71,8 +56,8 @@ export default function BillerPaymentPage({ params }: PageProps) {
         >
           {/* Biller Info */}
           <div className="flex flex-col items-center text-center space-y-4">
-            <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-4xl shadow-inner">
-              {schema.logo}
+            <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center shadow-inner">
+              <BillerIcon billerId={schema.id} className="h-10 w-10 text-primary" />
             </div>
             <div>
               <h2 className="text-2xl font-bold tracking-tight">{schema.name}</h2>

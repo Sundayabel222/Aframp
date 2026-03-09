@@ -185,7 +185,7 @@ export function OnrampPageClient() {
 
       <main className="container mx-auto px-4 py-10">
         <section className="text-center">
-          <p className="text-sm font-semibold text-primary">💳 Buy Crypto with Local Currency</p>
+          <p className="text-sm font-semibold text-primary">Buy Crypto with Local Currency</p>
           <h1 className="mt-3 text-3xl font-semibold text-foreground md:text-4xl">
             Convert your Naira, Shillings, or Cedis to stablecoins in seconds
           </h1>

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useState, useEffect, useCallback } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Loader2, AlertCircle, CheckCircle2, ChevronRight, Calendar } from 'lucide-react'
@@ -22,6 +22,7 @@ import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
+import type { CheckedState } from '@radix-ui/react-checkbox'
 
 interface PaymentFormProps {
   schema: BillerSchema
@@ -29,15 +30,18 @@ interface PaymentFormProps {
 
 export function PaymentForm({ schema }: PaymentFormProps) {
   const [isValidating, setIsValidating] = useState(false)
-  const [validatedAccount, setValidatedAccount] = useState<string | null>(null)
+  const [validatedAccount, setValidatedAccount] = useState<{
+    name: string
+    accountValue: string
+  } | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
   const [isProcessing, setIsProcessing] = useState(false)
   const [showSchedule, setShowSchedule] = useState(false)
 
   // 1. Generate dynamic Zod schema
-  const formSchemaObject: any = {}
+  const formSchemaObject: Record<string, z.ZodString> = {}
   schema.fields.forEach((field) => {
-    let validator: any = z.string()
+    let validator = z.string()
     if (field.validation.required) {
       validator = validator.min(1, field.validation.message || `${field.label} is required`)
     }
@@ -53,7 +57,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     formState: { errors, isValid },
   } = useForm<FormValues>({
@@ -61,35 +65,47 @@ export function PaymentForm({ schema }: PaymentFormProps) {
     mode: 'onChange',
   })
 
+  const watchedValues = useWatch({ control })
+
   // 2. Define parsedAmount (was missing)
   const amountField = schema.fields.find((f) => f.name === 'amount' || f.type === 'number')
-  const amountValue = watch(amountField?.name as any)
-  const parsedAmount = parseFloat(amountValue || '0')
+  const amountValue = amountField?.name ? watchedValues[amountField.name] : ''
+  const parsedAmount = parseFloat((amountValue as string) || '0')
 
   // 3. Logic: Account Validation
-  const accountValue = watch(schema.fields[0].name as any)
+  const primaryFieldName = schema.fields[0]?.name || ''
+  const accountValue = primaryFieldName ? ((watchedValues[primaryFieldName] as string) ?? '') : ''
+  const accountError = primaryFieldName ? errors[primaryFieldName] : undefined
 
-  const validateAccount = async (value: string) => {
+  const validateAccount = useCallback(async (_value: string) => {
     setIsValidating(true)
     await new Promise((resolve) => setTimeout(resolve, 1500))
     setIsValidating(false)
     const mockNames = ['John Doe', 'Sarah Williams', 'Emeka Azikiwe', 'Kofi Mensah']
-    setValidatedAccount(mockNames[Math.floor(Math.random() * mockNames.length)])
-  }
+    setValidatedAccount({
+      name: mockNames[Math.floor(Math.random() * mockNames.length)],
+      accountValue: _value,
+    })
+  }, [])
 
   useEffect(() => {
-    if (accountValue && accountValue.length >= 10 && !errors[schema.fields[0].name]) {
+    if (accountValue && accountValue.length >= 10 && !accountError) {
       const delayDebounceFn = setTimeout(() => {
         validateAccount(accountValue)
       }, 1000)
       return () => clearTimeout(delayDebounceFn)
-    } else {
-      setValidatedAccount(null)
     }
-  }, [accountValue, errors[schema.fields[0].name]])
+  }, [accountError, accountValue, validateAccount])
+
+  const isAccountValidatedForCurrentInput = Boolean(
+    validatedAccount &&
+      validatedAccount.accountValue === accountValue &&
+      accountValue.length >= 10 &&
+      !accountError
+  )
 
   // 4. Logic: Form Submission
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (_data: FormValues) => {
     setIsProcessing(true)
     await new Promise((resolve) => setTimeout(resolve, 3000))
     setIsProcessing(false)
@@ -108,7 +124,14 @@ export function PaymentForm({ schema }: PaymentFormProps) {
             </Label>
 
             {field.type === 'select' ? (
-              <Select onValueChange={(val: any) => setValue(field.name as any, val)}>
+              <Select
+                onValueChange={(val: string) =>
+                  setValue(field.name, val as FormValues[typeof field.name], {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
+              >
                 <SelectTrigger className="h-12 rounded-2xl bg-muted/30 focus:ring-primary">
                   <SelectValue placeholder={field.placeholder || `Select ${field.label}`} />
                 </SelectTrigger>
@@ -128,23 +151,23 @@ export function PaymentForm({ schema }: PaymentFormProps) {
                   placeholder={field.placeholder}
                   className={cn(
                     'h-12 rounded-2xl bg-muted/30 focus:ring-primary',
-                    isValidating && field.id === schema.fields[0].id && 'pr-10'
+                    isValidating && field.id === schema.fields[0]?.id && 'pr-10'
                   )}
-                  {...register(field.name as any)}
+                  {...register(field.name)}
                 />
-                {isValidating && field.id === schema.fields[0].id && (
+                {isValidating && field.id === schema.fields[0]?.id && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     <Loader2 className="w-5 h-5 animate-spin text-primary" />
                   </div>
                 )}
-                {validatedAccount && field.id === schema.fields[0].id && (
+                {isAccountValidatedForCurrentInput && field.id === schema.fields[0]?.id && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-2 text-xs flex items-center gap-1.5 text-green-600 font-medium bg-green-50 p-2 rounded-xl"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    Account Verified: {validatedAccount}
+                    Account Verified: {validatedAccount?.name}
                   </motion.div>
                 )}
               </div>
@@ -182,7 +205,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
               <Checkbox
                 id="schedule"
                 checked={showSchedule}
-                onCheckedChange={(checked: any) => setShowSchedule(!!checked)}
+                onCheckedChange={(checked: CheckedState) => setShowSchedule(checked === true)}
               />
             </div>
 
@@ -215,7 +238,9 @@ export function PaymentForm({ schema }: PaymentFormProps) {
       <Button
         type="submit"
         disabled={
-          !isValid || isProcessing || (schema.fields[0].validation.required && !validatedAccount)
+          !isValid ||
+          isProcessing ||
+          (schema.fields[0].validation.required && !isAccountValidatedForCurrentInput)
         }
         className="w-full h-14 rounded-2xl text-lg font-semibold"
       >

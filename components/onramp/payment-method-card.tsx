@@ -1,12 +1,13 @@
 'use client'
 
+import type React from 'react'
 import { cn } from '@/lib/utils'
 import type { PaymentMethod } from '@/types/onramp'
 
 interface PaymentMethodCardProps {
   value: PaymentMethod
   selected: boolean
-  icon: string
+  icon: React.ReactNode
   title: string
   description: string
   onSelect: (value: PaymentMethod) => void
@@ -33,7 +34,10 @@ export function PaymentMethodCard({
       aria-pressed={selected}
     >
       <div className="flex items-start gap-3">
-        <div className="text-xl" aria-hidden>
+        <div
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary"
+          aria-hidden
+        >
           {icon}
         </div>
         <div>

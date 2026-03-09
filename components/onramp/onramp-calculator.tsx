@@ -8,6 +8,7 @@ import { PaymentMethodCard } from '@/components/onramp/payment-method-card'
 import { WalletDisplay } from '@/components/onramp/wallet-display'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatNumber } from '@/lib/onramp/formatters'
+import { PaymentMethodGlyph } from '@/components/icons/finance-icons'
 import type { CryptoAsset, FiatCurrency, PaymentMethod } from '@/types/onramp'
 
 interface OnrampCalculatorProps {
@@ -45,17 +46,11 @@ interface OnrampCalculatorProps {
   }
 }
 
-const paymentOptions: { value: PaymentMethod; icon: string; title: string; description: string }[] =
-  [
-    { value: 'bank_transfer', icon: '🏦', title: 'Bank Transfer', description: 'Free, 5-30 mins' },
-    { value: 'card', icon: '💳', title: 'Card Payment', description: '1.5% fee, Instant' },
-    {
-      value: 'mobile_money',
-      icon: '📱',
-      title: 'Mobile Money',
-      description: '0.5% fee, 2-10 mins',
-    },
-  ]
+const paymentOptions: { value: PaymentMethod; title: string; description: string }[] = [
+  { value: 'bank_transfer', title: 'Bank Transfer', description: 'Free, 5-30 mins' },
+  { value: 'card', title: 'Card Payment', description: '1.5% fee, Instant' },
+  { value: 'mobile_money', title: 'Mobile Money', description: '0.5% fee, 2-10 mins' },
+]
 
 export function OnrampCalculator({
   amountInput,
@@ -163,7 +158,7 @@ export function OnrampCalculator({
                 key={option.value}
                 value={option.value}
                 selected={paymentMethod === option.value}
-                icon={option.icon}
+                icon={<PaymentMethodGlyph method={option.value} className="h-5 w-5" />}
                 title={option.title}
                 description={option.description}
                 onSelect={onPaymentChange}

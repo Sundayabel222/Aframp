@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatNumber } from '@/lib/onramp/formatters'
 import type { OfframpAssetOption } from '@/types/offramp'
+import { CryptoAssetBadge } from '@/components/icons/finance-icons'
 
 interface AssetSelectorProps {
   options: OfframpAssetOption[]
@@ -29,9 +30,7 @@ export function AssetSelector({ options, value, onChange }: AssetSelectorProps) 
         aria-haspopup="listbox"
       >
         <div className="flex items-center gap-2">
-          <span className="text-base" aria-hidden>
-            {selected.icon}
-          </span>
+          <CryptoAssetBadge asset={selected.asset} />
           <div>
             <div className="text-sm font-semibold">{selected.label}</div>
             <div className="text-xs text-muted-foreground">
@@ -61,9 +60,7 @@ export function AssetSelector({ options, value, onChange }: AssetSelectorProps) 
               )}
             >
               <div className="flex items-center gap-2">
-                <span className="text-base" aria-hidden>
-                  {option.icon}
-                </span>
+                <CryptoAssetBadge asset={option.asset} />
                 <div>
                   <div className="font-medium text-foreground">{option.label}</div>
                   <div className="text-xs text-muted-foreground">{option.chain}</div>

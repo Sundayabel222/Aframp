@@ -144,7 +144,7 @@ export default function OfframpSuccessPage() {
               transition={{ delay: 0.3 }}
             >
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-                Withdrawal Complete! 💸
+                Withdrawal Complete!
               </h1>
               <p className="text-xl text-muted-foreground mt-2">
                 {formatCurrency(transaction.amount, 'NGN')} sent to your {transaction.bank} account

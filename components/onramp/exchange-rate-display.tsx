@@ -1,6 +1,6 @@
 'use client'
 
-import { RefreshCcw } from 'lucide-react'
+import { RefreshCcw, TrendingDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ExchangeRateDisplayProps {
@@ -25,8 +25,9 @@ export function ExchangeRateDisplay({
 
   return (
     <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3 text-center">
-      <div className="text-sm font-medium text-muted-foreground">
-        ⬇️ {displayRate || 'Fetching live rates...'}
+      <div className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
+        <TrendingDown className="h-4 w-4 text-primary" />
+        <span>{displayRate || 'Fetching live rates...'}</span>
       </div>
       <div className={cn('mt-1 text-xs font-semibold', countdownColor)} aria-live="polite">
         Rate updates in: {countdown}s

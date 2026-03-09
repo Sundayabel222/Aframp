@@ -140,9 +140,9 @@ export function OfframpPageClient() {
             <Link href="/offramp" className="rounded-full px-3 py-2 bg-muted text-foreground">
               Offramp
             </Link>
-            <button type="button" className="rounded-full px-3 py-2 hover:text-foreground">
+            <Link href="/bills" className="rounded-full px-3 py-2 hover:text-foreground">
               Pay Bills
-            </button>
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export function OfframpPageClient() {
 
       <main className="container mx-auto px-4 py-10">
         <section className="text-center">
-          <p className="text-sm font-semibold text-primary">💸 Sell Crypto for Local Currency</p>
+          <p className="text-sm font-semibold text-primary">Sell Crypto for Local Currency</p>
           <h1 className="mt-3 text-3xl font-semibold text-foreground md:text-4xl">
             Cash out your stablecoins and crypto with transparent fees
           </h1>

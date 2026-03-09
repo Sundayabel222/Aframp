@@ -11,7 +11,7 @@ import { Footer } from '@/components/footer'
 export default function Home() {
   return (
     <SmoothScroll>
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-background text-foreground">
         <Navbar />
         <Hero />
         <LogoMarquee />
