@@ -72,26 +72,30 @@ export function PaymentForm({ schema }: PaymentFormProps) {
   const primaryFieldName = schema.fields[0]?.name || ''
   const accountValue = (watchedValues[primaryFieldName as keyof FormValues] as string) || ''
 
-  useEffect(() => {
-    const validate = async () => {
-      setIsValidating(true)
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      setIsValidating(false)
-      const mockNames = ['John Doe', 'Sarah Williams', 'Emeka Azikiwe', 'Kofi Mensah']
-      setValidatedAccount(mockNames[Math.floor(Math.random() * mockNames.length)])
-    }
+useEffect(() => {
+  // Only trigger validation if we have a valid-ish account and no errors
+  if (accountValue && accountValue.length >= 10 && !errors[primaryFieldName]) {
+    const delayDebounceFn = setTimeout(() => {
+      const validate = async () => {
+        setIsValidating(true)
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        setIsValidating(false)
+        const mockNames = ['John Doe', 'Sarah Williams', 'Emeka Azikiwe', 'Kofi Mensah']
+        setValidatedAccount(mockNames[Math.floor(Math.random() * mockNames.length)])
+      }
+      validate()
+    }, 1000)
 
-    if (accountValue && accountValue.length >= 10 && !errors[primaryFieldName]) {
-      const delayDebounceFn = setTimeout(() => {
-        validate()
-      }, 1000)
-      return () => clearTimeout(delayDebounceFn)
-    } else {
-      setValidatedAccount(null)
-    }
-  }, [accountValue, errors, primaryFieldName])
+    return () => clearTimeout(delayDebounceFn)
+  }
 
-  const onSubmit = async (data: FormValues) => {
+  // Reset state only when the account value is actually cleared/invalid
+  if (validatedAccount !== null && (!accountValue || accountValue.length < 10)) {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setValidatedAccount(null)
+  }
+}, [accountValue, errors, primaryFieldName, validatedAccount])
+  const onSubmit = async (_data: FormValues) => {
     setIsProcessing(true)
     await new Promise((resolve) => setTimeout(resolve, 3000))
     setIsProcessing(false)
