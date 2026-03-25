@@ -116,7 +116,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
             {field.type === 'select' ? (
               <Select
                 onValueChange={(val: string) =>
-                  setValue(field.name as any, val, { shouldValidate: true })
+                  setValue(field.name as unknown as string, val, { shouldValidate: true })
                 }
               >
                 <SelectTrigger className="h-12 rounded-2xl bg-muted/30 focus:ring-primary">
@@ -140,7 +140,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
                     'h-12 rounded-2xl bg-muted/30 focus:ring-primary',
                     isValidating && field.id === schema.fields[0]?.id && 'pr-10'
                   )}
-                  {...register(field.name as any)}
+                  {...register(field.name as unknown as string)}
                 />
                 {isValidating && field.id === schema.fields[0]?.id && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
