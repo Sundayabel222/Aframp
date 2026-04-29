@@ -7,8 +7,6 @@ import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { EthPriceTicker } from '@/components/dashboard/eth-price-ticker'
 import { BalanceProvider } from '@/contexts/balance-context'
-import { DemoModeBanner } from '@/components/demo-mode-banner'
-import { useEffect, useState } from 'react'
 
 import { ConnectButton } from '@/components/Wallet'
 
@@ -18,25 +16,14 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, walletAddress }: DashboardLayoutProps) {
-  const [showDemoBanner, setShowDemoBanner] = useState(false)
-
-  useEffect(() => {
-    // Check if the current wallet connection is using demo mode
-    const isDemoMode = localStorage.getItem('walletDemoMode') === 'true'
-    setShowDemoBanner(isDemoMode)
-  }, [])
-
   return (
     <BalanceProvider walletAddress={walletAddress}>
       <div className="min-h-screen bg-background">
-        {/* Demo Mode Banner */}
-        {showDemoBanner && <DemoModeBanner />}
-
         {/* Header */}
         <motion.header
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className={`sticky z-50 border-b border-border bg-card/80 backdrop-blur-md ${showDemoBanner ? 'top-[72px]' : 'top-0'}`}
+          className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md"
         >
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">

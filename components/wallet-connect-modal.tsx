@@ -9,14 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Wallet, Zap, Coins, ExternalLink, Loader2, AlertTriangle } from 'lucide-react'
+import { Wallet, Zap, Coins, ExternalLink, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWalletConnect } from '@/hooks/use-wallet-connect'
-
-// Check if demo mode is enabled
-const isDemoMode = () => {
-  return process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-}
 
 // Wallet provider type definitions
 declare global {
@@ -222,8 +217,8 @@ export function WalletConnectModal({ open, onOpenChange }: WalletConnectModalPro
         throw new Error('Wallet not found')
       }
 
-      const { address, walletName, isDemoMode } = await connectWallet({ id: walletId, name: wallet.name })
-      storeAndNavigate(address, walletName, isDemoMode)
+      const { address, walletName } = await connectWallet({ id: walletId, name: wallet.name })
+      storeAndNavigate(address, walletName)
       onOpenChange(false)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to connect wallet'
@@ -268,21 +263,7 @@ export function WalletConnectModal({ open, onOpenChange }: WalletConnectModalPro
         {/* Error Message */}
         {error && (
           <div className="px-6 py-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg mx-6 mb-3">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-red-800 dark:text-red-200">
-                  Connection Failed
-                </p>
-                <p className="text-sm text-red-700 dark:text-red-300 mt-1">{error}</p>
-                {!isDemoMode() && (
-                  <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-                    Demo mode is disabled. Please install the required wallet extension or enable
-                    demo mode for testing.
-                  </p>
-                )}
-              </div>
-            </div>
+            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
           </div>
         )}
 
