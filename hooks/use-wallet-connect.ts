@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 import { Keypair } from '@stellar/stellar-sdk'
+import { walletSession } from '@/lib/wallet/session'
 
 interface WalletProvider {
   id: string
@@ -101,8 +102,8 @@ export const useWalletConnect = () => {
 
   const storeAndNavigate = useCallback(
     (address: string, walletName: string) => {
-      localStorage.setItem('walletName', walletName)
-      localStorage.setItem('walletAddress', address)
+      walletSession.setName(walletName)
+      walletSession.setAddress(address)
       router.push(`/dashboard?wallet=${encodeURIComponent(walletName)}&address=${address}`)
     },
     [router]
