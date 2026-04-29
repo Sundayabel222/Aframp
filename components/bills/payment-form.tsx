@@ -18,10 +18,12 @@ import {
 import { BillerSchema } from '@/lib/biller-schemas'
 import { PaymentMethod, PaymentMethodSelector } from './payment-method-selector'
 import { FeeBreakdown } from './fee-breakdown'
+import { QRInvoiceModal } from './qr-invoice-modal'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
+import { generateInvoiceId, type QRInvoiceData } from '@/lib/bills/qr-invoice'
 
 interface PaymentFormProps {
   schema: BillerSchema
@@ -33,6 +35,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
   const [isProcessing, setIsProcessing] = useState(false)
   const [showSchedule, setShowSchedule] = useState(false)
+  const [invoice, setInvoice] = useState<QRInvoiceData | null>(null)
 
   const formSchemaObject: Record<string, z.ZodTypeAny> = {}
   schema.fields.forEach((field) => {
@@ -99,12 +102,29 @@ export function PaymentForm({ schema }: PaymentFormProps) {
     setIsProcessing(true)
     await new Promise((resolve) => setTimeout(resolve, 3000))
     setIsProcessing(false)
+
+    const reference = `REF${Date.now()}`
+    const fee = schema.feeStructure.baseFee + parsedAmount * (schema.feeStructure.percentageFee / 100)
+    const newInvoice: QRInvoiceData = {
+      invoiceId: generateInvoiceId(reference),
+      biller: schema.name,
+      billerCategory: 'Bills',
+      accountLabel: validatedAccount ?? (accountValue || 'N/A'),
+      amount: parsedAmount,
+      currency: 'NGN',
+      fee,
+      reference,
+      createdAt: new Date().toISOString(),
+      paymentMethod,
+    }
+    setInvoice(newInvoice)
     toast.success('Payment Successful!', {
       description: `Your payment to ${schema.name} has been processed.`,
     })
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="space-y-5">
         {schema.fields.map((field) => (
@@ -242,5 +262,7 @@ export function PaymentForm({ schema }: PaymentFormProps) {
         )}
       </Button>
     </form>
+    {invoice && <QRInvoiceModal invoice={invoice} onClose={() => setInvoice(null)} />}
+  </>
   )
 }
