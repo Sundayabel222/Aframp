@@ -8,6 +8,11 @@ interface WalletProvider {
   name: string
 }
 
+// Check if demo mode is enabled (only for development/testing)
+const isDemoMode = () => {
+  return process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+}
+
 export const useWalletConnect = () => {
   const router = useRouter()
 
@@ -32,16 +37,23 @@ export const useWalletConnect = () => {
   }, [])
 
   const connectWallet = useCallback(
-    async (wallet: WalletProvider): Promise<{ address: string; walletName: string }> => {
+    async (wallet: WalletProvider): Promise<{ address: string; walletName: string; isDemoMode: boolean }> => {
       const { id: walletId, name: walletName } = wallet
       let address: string | null = null
+      let usingDemoMode = false
 
       // MetaMask connection
       if (walletId === 'metamask') {
         if (!window.ethereum) {
-          // Fallback to demo connect so the UI flow still works on non-web3 browsers
+          if (!isDemoMode()) {
+            throw new Error(
+              'MetaMask is not installed. Please install MetaMask extension to connect your wallet.'
+            )
+          }
+          // Demo mode enabled: use mock address
           address = generateMockAddress(walletId)
-          return { address, walletName }
+          usingDemoMode = true
+          return { address, walletName, isDemoMode: usingDemoMode }
         }
         try {
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -50,23 +62,38 @@ export const useWalletConnect = () => {
           }
         } catch (error) {
           if (error instanceof Error) {
-            // If user rejects, keep it a clear error; otherwise allow demo connect
+            // If user rejects, always throw error
             if (error.message.toLowerCase().includes('user rejected')) {
-              throw new Error(`MetaMask connection cancelled`)
+              throw new Error('MetaMask connection cancelled by user')
+            }
+            // For other errors, only use demo mode if enabled
+            if (!isDemoMode()) {
+              throw new Error(`MetaMask connection failed: ${error.message}`)
             }
             address = generateMockAddress(walletId)
-            return { address, walletName }
+            usingDemoMode = true
+            return { address, walletName, isDemoMode: usingDemoMode }
+          }
+          if (!isDemoMode()) {
+            throw new Error('MetaMask connection failed')
           }
           address = generateMockAddress(walletId)
-          return { address, walletName }
+          usingDemoMode = true
+          return { address, walletName, isDemoMode: usingDemoMode }
         }
       }
 
       // Coinbase Wallet connection
       else if (walletId === 'coinbase-wallet') {
         if (!window.coinbaseWalletProvider) {
+          if (!isDemoMode()) {
+            throw new Error(
+              'Coinbase Wallet is not installed. Please install Coinbase Wallet to connect.'
+            )
+          }
           address = generateMockAddress(walletId)
-          return { address, walletName }
+          usingDemoMode = true
+          return { address, walletName, isDemoMode: usingDemoMode }
         }
         try {
           const accounts = await window.coinbaseWalletProvider.request({
@@ -77,21 +104,34 @@ export const useWalletConnect = () => {
           }
         } catch (error) {
           if (error instanceof Error) {
+            if (!isDemoMode()) {
+              throw new Error(`Coinbase Wallet connection failed: ${error.message}`)
+            }
             address = generateMockAddress(walletId)
-            return { address, walletName }
+            usingDemoMode = true
+            return { address, walletName, isDemoMode: usingDemoMode }
+          }
+          if (!isDemoMode()) {
+            throw new Error('Coinbase Wallet connection failed')
           }
           address = generateMockAddress(walletId)
-          return { address, walletName }
+          usingDemoMode = true
+          return { address, walletName, isDemoMode: usingDemoMode }
         }
       }
 
       // Trust Wallet connection
       else if (walletId === 'trust-wallet') {
-        // Trust Wallet often injects window.ethereum on mobile; don't hard-require isTrust.
         try {
           if (!window.ethereum) {
+            if (!isDemoMode()) {
+              throw new Error(
+                'Trust Wallet is not available. Please install Trust Wallet to connect.'
+              )
+            }
             address = generateMockAddress(walletId)
-            return { address, walletName }
+            usingDemoMode = true
+            return { address, walletName, isDemoMode: usingDemoMode }
           }
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
           if (Array.isArray(accounts) && accounts.length > 0) {
@@ -99,33 +139,48 @@ export const useWalletConnect = () => {
           }
         } catch (error) {
           if (error instanceof Error) {
+            if (!isDemoMode()) {
+              throw new Error(`Trust Wallet connection failed: ${error.message}`)
+            }
             address = generateMockAddress(walletId)
-            return { address, walletName }
+            usingDemoMode = true
+            return { address, walletName, isDemoMode: usingDemoMode }
+          }
+          if (!isDemoMode()) {
+            throw new Error('Trust Wallet connection failed')
           }
           address = generateMockAddress(walletId)
-          return { address, walletName }
+          usingDemoMode = true
+          return { address, walletName, isDemoMode: usingDemoMode }
         }
       }
 
-      // All other wallets: demo connect for now (so button + flow always works)
+      // All other wallets: require demo mode to be enabled
       else {
+        if (!isDemoMode()) {
+          throw new Error(
+            `${walletName} integration is not yet available. Please use MetaMask, Trust Wallet, or Coinbase Wallet.`
+          )
+        }
         address = generateMockAddress(walletId)
-        return { address, walletName }
+        usingDemoMode = true
+        return { address, walletName, isDemoMode: usingDemoMode }
       }
 
       if (!address) {
         throw new Error('Failed to retrieve wallet address')
       }
 
-      return { address, walletName }
+      return { address, walletName, isDemoMode: usingDemoMode }
     },
     [generateMockAddress]
   )
 
   const storeAndNavigate = useCallback(
-    (address: string, walletName: string) => {
+    (address: string, walletName: string, isDemoMode: boolean) => {
       localStorage.setItem('walletName', walletName)
       localStorage.setItem('walletAddress', address)
+      localStorage.setItem('walletDemoMode', isDemoMode.toString())
       router.push(`/dashboard?wallet=${encodeURIComponent(walletName)}&address=${address}`)
     },
     [router]
