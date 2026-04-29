@@ -23,6 +23,7 @@ export interface BillsTransaction {
   paymentMethod: string
   timeline: BillsTimelineItem[]
   customerSupportEmail: string
+  txHash?: string
 }
 
 export function useBillsTransaction(
