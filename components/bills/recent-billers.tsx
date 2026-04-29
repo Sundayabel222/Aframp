@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Clock, Star } from 'lucide-react'
 import { BillerIcon } from '@/components/bills/biller-icons'
+import { EmptyStateIllustration } from '@/components/ui/empty-state-illustration'
 
 interface Biller {
   id: string
@@ -70,7 +71,8 @@ export function RecentBillers({ billers, searchQuery, loading }: RecentBillersPr
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Recent Billers</h2>
         </div>
-        <div className="text-center py-12">
+        <div className="text-center py-12 space-y-3">
+          <EmptyStateIllustration variant="search" />
           <div className="text-muted-foreground">
             No billers found matching &quot;{searchQuery}&quot;
           </div>
