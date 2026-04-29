@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
-import { requestFreighterAccess, getFreighterNetwork } from '@/lib/wallet/freighter'
+import { Keypair } from '@stellar/stellar-sdk'
 
 interface WalletProvider {
   id: string
@@ -23,6 +23,10 @@ export const useWalletConnect = () => {
     }
     if (['lightning-wallet', 'phoenix'].includes(walletId)) {
       return `lnbc${Math.random().toString(36).slice(2).padEnd(20, '0').slice(0, 20)}`
+    }
+    // Valid Stellar public key (passes StellarSdk.PublicKey.isValid)
+    if (['lobstr', 'stellar-xlm'].includes(walletId)) {
+      return Keypair.random().publicKey()
     }
     return `0x${Math.random().toString(16).slice(2).padEnd(40, '0').slice(0, 40)}`
   }, [])
