@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
+import { Keypair } from '@stellar/stellar-sdk'
+import { walletSession } from '@/lib/wallet/session'
 
 interface WalletProvider {
   id: string
@@ -24,9 +26,9 @@ export const useWalletConnect = () => {
     if (['lightning-wallet', 'phoenix'].includes(walletId)) {
       return `lnbc${Math.random().toString(36).slice(2).padEnd(20, '0').slice(0, 20)}`
     }
-    // Stellar-like public key placeholder
+    // Valid Stellar public key (passes StellarSdk.PublicKey.isValid)
     if (['lobstr', 'stellar-xlm'].includes(walletId)) {
-      return `G${Math.random().toString(36).toUpperCase().slice(2).padEnd(55, 'A').slice(0, 55)}`
+      return Keypair.random().publicKey()
     }
     return `0x${Math.random().toString(16).slice(2).padEnd(40, '0').slice(0, 40)}`
   }, [])
@@ -124,8 +126,8 @@ export const useWalletConnect = () => {
 
   const storeAndNavigate = useCallback(
     (address: string, walletName: string) => {
-      localStorage.setItem('walletName', walletName)
-      localStorage.setItem('walletAddress', address)
+      walletSession.setName(walletName)
+      walletSession.setAddress(address)
       router.push(`/dashboard?wallet=${encodeURIComponent(walletName)}&address=${address}`)
     },
     [router]
