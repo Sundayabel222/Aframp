@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar, Pause, Play, MoreHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { EmptyStateIllustration } from '@/components/ui/empty-state-illustration'
 
 interface ScheduledPayment {
   id: string
@@ -55,7 +56,7 @@ export function ScheduledPayments({ payments, loading }: ScheduledPaymentsProps)
         </div>
         <Card className="border-border bg-card">
           <CardContent className="p-12 text-center">
-            <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <EmptyStateIllustration variant="calendar" className="mb-4" />
             <h3 className="font-medium mb-2">No scheduled payments</h3>
             <p className="text-muted-foreground text-sm mb-4">
               Set up recurring payments to automate your bills
